@@ -72,7 +72,7 @@ Viz.getAudioUrl = function() {
 Viz.getAudio = function() {
   // send XML request to fetch mp3 and start playing when loaded
   this.request = new XMLHttpRequest();
-  this.url = this.getAudioUrl() || 'rock.mp3';
+  this.url = '/fetchtrackdata?id=' + this.getAudioUrl() || 'rock.mp3';
   try {
     this.request.open( 'GET', this.url, true );
   } catch( err ) {
