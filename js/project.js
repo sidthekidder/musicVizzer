@@ -64,7 +64,7 @@ Viz.audioSetup = function() {
 Viz.getAudioUrl = function() {
   var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('=');
   if(hashes[0] == 'id') {
-    return hashes[1] || null;
+    return '/fetchtrackdata?id=' + hashes[1] || null;
   } else {
     return null;
   }
