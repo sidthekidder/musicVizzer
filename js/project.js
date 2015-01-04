@@ -7,6 +7,7 @@ var Viz = {
   dataset : [ 50 ],
   vizElements : [],
   svg : {},
+  background : {},
   // audio variables
   context : {},
   analyser : {},
@@ -54,9 +55,9 @@ Viz.audioSetup = function() {
     avgData = Math.floor(avgData) * 10;
 
     Viz.vizElements.attr( 'r' , function( d , i ) {
-                 console.log( avgData );
-                 return avgData;
-               });
+                      return avgData;
+                    })
+                    .attr( 'fill', 'rgba(255, 255, 255, ' + (avgData*0.001) + ')');
   };
 };
 
@@ -69,10 +70,14 @@ Viz.getAudioUrl = function() {
   }
 };
 
+/*
+ * setup XMLHTTPRequest to fetch audio and start playing on load
+ *
+ */
 Viz.getAudio = function() {
   // send XML request to fetch mp3 and start playing when loaded
   this.request = new XMLHttpRequest();
-  this.url = '/fetchtrackdata?id=' + this.getAudioUrl() || 'rock.mp3';
+  this.url = this.getAudioUrl() || 'rock.mp3';
   try {
     this.request.open( 'GET', this.url, true );
   } catch( err ) {
@@ -86,8 +91,23 @@ Viz.getAudio = function() {
     })
   };
   this.request.send();
-}
+};
 
+/*
+ * recursive background-color change 
+ *
+ */
+Viz.recolor = function() {
+  Viz.background.transition()
+                  .duration( 3000 )
+                  .attr( 'fill', 'hsl(' + ( Math.random() * 360 ) + ', 50%, 5%)')
+                  .each( 'end', Viz.recolor );
+};
+
+/*
+ * initialization of background and vizElements
+ *
+ */
 Viz.initApp = function() {
   // setup d3
   // attach main svg element
@@ -95,6 +115,12 @@ Viz.initApp = function() {
               .append( 'svg' )
               .attr( 'width', this.w )
               .attr( 'height', this.h );
+
+  // background color
+  this.background = this.svg.append("rect")
+                             .attr("width", "100%")
+                             .attr("height", "100%")
+                             .attr("fill", "black");
 
   // create the visualisation elements - hardcoded to circles right now
   this.vizElements = this.svg.selectAll( this.vizType )
@@ -108,11 +134,13 @@ Viz.initApp = function() {
               })  
               .attr( 'cy' , function( d, i ) {
                 return Viz.h / 2;
-              });
+              })
+              .attr( 'fill', 'rgba(255, 255, 255, 0.1)');
 
   this.fillContext();
   this.audioSetup();
   this.getAudio();
+  this.recolor();
 };
 
 $(document).ready(function() {
