@@ -4,7 +4,11 @@ var Viz = {
   h : $(document).height(),
   // type of visualization
   vizType : 'circle',
-  dataset : [ 50 ],
+  dataset : [ { r : 1, w : 0.5 }, { r : 0.5, w : 0.5 }, { r : 0.2, w : 0.5 },
+              { r : 0.5, w : 0.25 }, { r : 0.133, w : 0.25 },
+              { r : 0.5, w : 0.75 }, { r : 0.133, w : 0.75},
+              { r : 0.105, w : 0.125 }, { r : 0.105, w : 0.875 }
+            ],
   vizElements : [],
   svg : {},
   background : {},
@@ -47,18 +51,23 @@ Viz.audioSetup = function() {
   this.scriptProc.onaudioprocess = function() {
     var musicDataArr = new Uint8Array( Viz.analyser.frequencyBinCount ),
         avgData = 0;
-    Viz.analyser.getByteFrequencyData( musicDataArr );
-    for( var i = 0 ; i < musicDataArr.length ; i++ ) {
-      avgData += musicDataArr[i];
-    }
-    avgData /= musicDataArr.length;
-    avgData = Math.floor(avgData) * 10;
 
+    Viz.analyser.getByteFrequencyData( musicDataArr );
+
+    var ratio = Math.max.apply( Math, musicDataArr ) / 100,
+        len = musicDataArr.length;
+    for( var i = 0 ; i < len ; i++ ) {
+      avgData += musicDataArr[i] / ratio;
+    }
+
+    avgData /= musicDataArr.length;
+    avgData = Math.floor(avgData * 15);
+    console.log(avgData);
     Viz.vizElements.attr( 'r' , function( d , i ) {
-                      return avgData;
+                        return avgData * d.r || 0;
                     })
                     .attr( 'fill', 'rgba(255, 255, 255, ' + (avgData*0.001) + ')');
-  };
+    };
 };
 
 Viz.getAudioUrl = function() {
@@ -98,8 +107,9 @@ Viz.getAudio = function() {
  *
  */
 Viz.recolor = function() {
+ 
   Viz.background.transition()
-                  .duration( 3000 )
+                  .duration( 250 )
                   .attr( 'fill', 'hsl(' + ( Math.random() * 360 ) + ', 50%, 5%)')
                   .each( 'end', Viz.recolor );
 };
@@ -130,7 +140,7 @@ Viz.initApp = function() {
 
   // set x, y coordinates etc
   this.vizElements.attr( 'cx' , function( d, i ) {
-                return Viz.w / 2;
+                return Viz.w * d.w;
               })  
               .attr( 'cy' , function( d, i ) {
                 return Viz.h / 2;
