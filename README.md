@@ -1,6 +1,8 @@
 musicVizzer
 ===========
 
+![musicVizzer](https://raw.github.com/sidthekidder/musicVizzer/img.png)
+
 music visualizer using d3 and html5 audio
 
 
